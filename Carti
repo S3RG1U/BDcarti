@@ -1,0 +1,77 @@
+
+DROP TABLE IF EXISTS AUTORI;
+DROP TABLE IF EXISTS CARTI;
+DROP TABLE IF EXISTS EDITURI;
+DROP TABLE IF EXISTS CARTI_AUTORI;
+DROP TABLE IF EXISTS CUVINTE_CHEIE;
+DROP TABLE IF EXISTS CARTI_CUVINTE_CHEIE;
+
+
+###############################################################
+			                Crearea tabelelor
+###############################################################
+
+
+CREATE TABLE AUTORI (
+CodAutor int PRIMARY KEY,
+NumeAutor varchar(25) NOT NULL,
+DataNastere date DEFAULT CURRENT_DATE,
+Tara varchar(25)
+	CONSTRAINT nn_Tara NOT NULL
+	CONSTRAINT ck_Tara CHECK (Tara=LTRIM(INITCAP(Tara))) 
+);
+INSERT INTO AUTORI VALUES(1,'Corjan Sergiu','27.01.2000','Moldova');
+
+CREATE TABLE CARTI(
+titlu varchar(30) UNIQUE
+	CONSTRAINT nn_titlu NOT NULL
+	CONSTRAINT ck_titlu CHECK (SUBSTR(titlu,1,1) = UPPER(SUBSTR(titlu,1,1))),
+ISBN numeric(10) PRIMARY KEY,
+editura varchar(30)
+	CONSTRAINT nn_editura NOT NULL
+	CONSTRAINT ck_editura CHECK (editura=LTRIM(INITCAP(editura))),
+anapar numeric(4) 
+	CONSTRAINT nn_anapar NOT NULL
+	CONSTRAINT ck_anapar CHECK (anapar<=2021),
+nrpagini int,
+pretactual int
+	CONSTRAINT nn_pretactual NOT NULL 
+	CONSTRAINT ck_pretactual CHECK (pretactual>0)
+);
+
+CREATE TABLE EDITURI(
+editura varchar(30) 
+	CONSTRAINT nn_editura NOT NULL,
+adresa varchar(50)
+	CONSTRAINT nn_adresa NOT NULL
+	CONSTRAINT ck_edituri CHECK (adresa IN('Str')),
+localit varchar(10)
+	CONSTRAINT nn_lacalit NOT NULL
+	CONSTRAINT ck_localit CHECK (localit=LTRIM(INITCAP(localit))),
+tara varchar(15)
+	CONSTRAINT nn_tara NOT NULL
+	CONSTRAINT ck_tara CHECK (SUBSTR(tara,1,1) = UPPER(SUBSTR(tara,1,1))),
+CONSTRAINT pk_edituri PRIMARY KEY (editura)
+);
+
+CREATE TABLE CARTI_AUTORI(
+ISBN numeric(10) 
+	CONSTRAINT fk_carti_autori_carti REFERENCES carti(isbn),
+AutorNR int 
+	CONSTRAINT pk_autornr PRIMARY KEY,
+CodAutor int 
+	CONSTRAINT fk_carti_autori_autori REFERENCES autori(codautor)
+);
+
+CREATE TABLE CUVINTE_CHEIE(
+codcc int 
+	CONSTRAINT pk_cuvinte_cheie PRIMARY KEY,
+numecc varchar(25),
+codcc_superior int
+	CONSTRAINT fk_cuvinte_cheie REFERENCES cuvinte_cheie(codcc)
+);
+CREATE TABLE CARTI_CUVINTE_CHEIE(
+ISBN int NOT NULL,
+CODCC int NOT NULL,
+	CONSTRAINT PK_CARTI_CUVINTE_CHEIE PRIMARY KEY  (ISBN, CODCC)
+);
